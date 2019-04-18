@@ -1,0 +1,6 @@
+c:\users\ryan fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\RandomnessChecker.exe.config
+c:\users\ryan fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\RandomnessChecker.exe
+c:\users\ryan fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\RandomnessChecker.pdb
+c:\users\ryan fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\obj\Debug\RandomnessChecker.csprojResolveAssemblyReference.cache
+c:\users\ryan fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\obj\Debug\RandomnessChecker.exe
+c:\users\ryan fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\obj\Debug\RandomnessChecker.pdb
