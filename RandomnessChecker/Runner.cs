@@ -32,8 +32,49 @@ namespace RandomnessChecker
          */
         public void run()
         {
-            getRandomUnit = new GetWebPage();
-            getRandomUnit.GetData(runInfo);
+            GetData();
+
+            int actionId = GetNextAction();
+
+            if (actionId == 1)
+            {
+                // Look at database and analyse results
+                database.PrintDatabase();
+                AnalyseData();
+            }
+        }
+
+        private void GetData()
+        {
+            List<Task> taskList = new List<Task>();
+            for (int i=0; i<10; i++)
+            {
+                Task tempTask = Task.Factory.StartNew(() => GetRandomUnit());
+                taskList.Add(tempTask);
+
+                Thread.Sleep(100);
+                Console.WriteLine("i: " + i);
+            }
+
+            Task.WaitAll(taskList.ToArray());
+            
+        }
+
+        private void GetRandomUnit()
+        {
+            String resStr = (new GetWebPage()).GetData(runInfo);
+
+            database.AddToDatabase(DateTime.Now, resStr);
+        }
+
+        private int GetNextAction()
+        {
+            return 1;
+        }
+
+        private void AnalyseData()
+        {
+
         }
     }
 }

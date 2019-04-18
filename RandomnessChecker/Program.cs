@@ -19,6 +19,9 @@ namespace RandomnessChecker
 
             Runner runner = new Runner(configFilePath);
             runner.run();
+
+
+            Console.ReadKey();
         }
     }
 }

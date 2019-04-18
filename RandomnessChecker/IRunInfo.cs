@@ -17,5 +17,7 @@ namespace RandomnessChecker
         IDatabaseConnection GetDatabaseType();
 
         String GetRequestString();
+
+        String FormatResponse(String str);
     }
 }

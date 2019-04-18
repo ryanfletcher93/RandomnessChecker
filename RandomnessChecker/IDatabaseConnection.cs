@@ -8,8 +8,10 @@ namespace RandomnessChecker
 {
     public interface IDatabaseConnection
     {
-        void AddToDatabase();
+        void AddToDatabase(DateTime dateTime, String label);
 
-        void IsInDatabase();
+        bool IsInDatabase(String label);
+
+        void PrintDatabase();
     }
 }

@@ -35,5 +35,19 @@ namespace RandomnessChecker
         {
             return new NonPersistentDatabase();
         }
+
+        public String FormatResponse(String response)
+        {
+            String res = "";
+            String[] splitResponse = response.Split('/');
+            res = splitResponse[4];
+
+            if (splitResponse.GetLength(0) < 5)
+            {
+                throw new Exception();
+            }
+
+            return res;
+        }
     }
 }
