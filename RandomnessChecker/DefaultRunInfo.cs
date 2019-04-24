@@ -8,23 +8,10 @@ namespace RandomnessChecker
 {
     class DefaultRunInfo : IRunInfo
     {
-        public int GetNumberOfRequests()
-        {
-            return 1;
-        }
 
 
-        public int GetRequestsPerSecond()
-        {
-            return 1;
-        }
-
-
-        public String GetRequestString()
-        {
-            return "http://www.reddit.com/r/random/";
-        }
-
+        public int NumberOfRequests { get; set; }
+        public String RequestString { get; set; }
 
         public IGetRandomUnit GetRequestType()
         {
@@ -33,11 +20,16 @@ namespace RandomnessChecker
 
         public IDatabaseConnection GetDatabaseType()
         {
-            return new NonPersistentDatabase();
+            return new SQLDatabase();
         }
 
         public String FormatResponse(String response)
         {
+            if (response == null)
+            {
+                return null;
+            }
+
             String res = "";
             String[] splitResponse = response.Split('/');
             res = splitResponse[4];

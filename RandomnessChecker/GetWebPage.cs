@@ -9,18 +9,23 @@ namespace RandomnessChecker
 {
     public class GetWebPage : IGetRandomUnit
     {
+        private static bool Debug = true;
+
         public String GetData(IRunInfo runInfo)
         {
             String responseUrlString = "";
 
             try
             {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(runInfo.GetRequestString());
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(runInfo.RequestString);
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
                     responseUrlString = response.ResponseUri.ToString();
 
-                    Console.WriteLine(responseUrlString);
+                    if (Debug)
+                    {
+                        Console.WriteLine(responseUrlString);
+                    }
                 }
             }
             catch (WebException we)
