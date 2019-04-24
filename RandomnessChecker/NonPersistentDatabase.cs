@@ -17,6 +17,13 @@ namespace RandomnessChecker
             data = new Dictionary<string, List<DateTime>>();
         }
 
+        public void SetConnectionString(Dictionary<DatabaseParameter, String> databaseParams) { }
+
+        public bool CanConnect(Dictionary<DatabaseParameter, String> databaseParameters)
+        {
+            return true;
+        }
+
         public void AddToDatabase(DateTime dateTime, String name)
         {
             lock (syncLock)
@@ -52,6 +59,55 @@ namespace RandomnessChecker
                     Console.WriteLine(dateTime);
                 }
                 Console.WriteLine();
+            }
+        }
+
+        public Dictionary<String, List<DateTime>> GetDataBetweenDates(DateTime dt1, DateTime dt2)
+        {
+            Dictionary<String, List<DateTime>> returnResults = new Dictionary<String, List<DateTime>>();
+            foreach (KeyValuePair<String, List<DateTime>> keyValue in data)
+            {
+                foreach (DateTime time in keyValue.Value)
+                {
+                    if (time.CompareTo(dt1) > 0 && time.CompareTo(dt2) < 0)
+                    {
+                        AddToDictionary(returnResults, keyValue.Key, time);
+                    }
+                }
+            }
+
+            return returnResults;
+        }
+
+        public int GetNumberUniqueItems()
+        {
+            int result = 0;
+            return result;
+        }
+
+        public int GetNumberTotalRecords()
+        {
+            int result = 0;
+            return result;
+        }
+
+        public Dictionary<String, List<DateTime>> GetAllData()
+        {
+            return GetDataBetweenDates(DateTime.Now.AddYears(-10), DateTime.Now);
+        }
+
+        private void AddToDictionary(Dictionary<String, List<DateTime>> res, String key, DateTime value)
+        {
+            // Check if already in returnResults and add to existing or add new key
+            if (res.ContainsKey(key))
+            {
+                res[key].Add(value);
+            }
+            else
+            {
+                List<DateTime> tempDateTime = new List<DateTime>();
+                tempDateTime.Add(value);
+                res.Add(key, tempDateTime);
             }
         }
     }

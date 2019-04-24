@@ -8,15 +8,10 @@ namespace RandomnessChecker
 {
     public interface IRunInfo
     {
-        int GetNumberOfRequests();
-
-        int GetRequestsPerSecond();
+        int NumberOfRequests { get; set; }
+        String RequestString { get; set; }
 
         IGetRandomUnit GetRequestType();
-
-        IDatabaseConnection GetDatabaseType();
-
-        String GetRequestString();
 
         String FormatResponse(String str);
     }

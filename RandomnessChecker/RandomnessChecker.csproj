@@ -32,6 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MySql.Data, Version=8.0.15.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandLineInterface.cs" />
     <Compile Include="DefaultRunInfo.cs" />
     <Compile Include="IDatabaseConnection.cs" />
     <Compile Include="IRunInfo.cs" />
@@ -52,6 +54,7 @@
     <Compile Include="IGetRandomUnit.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SQLDatabase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
