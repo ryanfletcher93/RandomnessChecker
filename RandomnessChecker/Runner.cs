@@ -86,7 +86,6 @@ namespace RandomnessChecker
                     runInfo.NumberOfRequests = cmdInterface.GetNumberOfRequests();
 
                     GetData();
-
                     Console.WriteLine("All results collected\n");
                 }
                 else if (currOperation == Operation.ReportOnDataIntegrity)
@@ -107,7 +106,12 @@ namespace RandomnessChecker
 
         private bool CanConnectToDatabase(Dictionary<DatabaseParameter, String> databaseParams)
         {
-            return database.CanConnect(databaseParams);
+            bool canConnect =  database.CanConnect(databaseParams);
+            if (canConnect == false)
+            {
+                Console.WriteLine("Could not connect");
+            }
+            return canConnect;
         }
 
         private void GetData()
