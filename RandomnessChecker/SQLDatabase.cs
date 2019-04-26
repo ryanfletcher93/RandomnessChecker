@@ -6,6 +6,8 @@ namespace RandomnessChecker
 {
     class SQLDatabase : IDatabaseConnection
     {
+        private static readonly bool debug = false;
+
         private static Object connectionLock = new Object();
 
         public static readonly Dictionary<DatabaseParameter, String> databaseToConnectionString
@@ -26,24 +28,34 @@ namespace RandomnessChecker
 
         }
 
+        /**
+         * @return 
+         */
         public bool CanConnect(Dictionary<DatabaseParameter, String> databaseParams)
         {
             if (connectionString == null || connectionString == "")
             {
                 Console.WriteLine("No connection string provided");
-                throw new Exception();
+                return false;
             }
 
             bool isConnectionSuccessful = false;
             try
             {
-                connection = new MySqlConnection(connectionString);
-                isConnectionSuccessful = true;
+                // Try opening connection so if fails will not set isConnectionSuccessful to true
+                using (connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+                    isConnectionSuccessful = true;
+                }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Connection failed");
-                Console.WriteLine(e.Message);
+                if (debug)
+                {
+                    Console.WriteLine("Connection failed");
+                    Console.WriteLine(e.Message);
+                }
             }
 
             return isConnectionSuccessful;
