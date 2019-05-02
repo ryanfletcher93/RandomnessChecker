@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace RandomnessChecker
 {
@@ -18,7 +19,7 @@ namespace RandomnessChecker
 
         public CommandLineInterface()
         {
-             
+
         }
 
         public DatabaseType GetDatabaseType()
@@ -42,6 +43,10 @@ namespace RandomnessChecker
             Console.Write("Database: ");
             String databaseVal = Console.ReadLine();
             paramDict.Add(DatabaseParameter.Database, databaseVal);
+
+            Console.Write("Table: ");
+            String tableVal = Console.ReadLine();
+            paramDict.Add(DatabaseParameter.Table, tableVal);
 
             Console.Write("Username: ");
             String usernameVal = Console.ReadLine();
@@ -104,6 +109,42 @@ namespace RandomnessChecker
             Console.Write("Enter the randomizer url: ");
             String url = Console.ReadLine();
             return url;
+        }
+
+        public String GetRegexForReturnUrl()
+        {
+            Console.Write("Enter the regex to be applied to return url: ");
+            String regex = Console.ReadLine();
+            return regex;
+        }
+
+        public bool ConfirmSelection()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Are these the parameters you want to continue with? (Y/n)");
+
+            String res;
+            bool result = false;
+            while (true)
+            {
+                res = Console.ReadLine();
+                if (res == "Y")
+                {
+                    result = true;
+                    break;
+                }
+                else if (res == "n")
+                {
+                    result = false;
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid entry, please try again:");
+                }
+            }
+
+            return result;
         }
 
         public int GetNumberOfRequests()

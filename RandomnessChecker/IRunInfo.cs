@@ -10,6 +10,7 @@ namespace RandomnessChecker
     {
         int NumberOfRequests { get; set; }
         String RequestString { get; set; }
+        String RegexString { get; set; }
 
         IGetRandomUnit GetRequestType();
 

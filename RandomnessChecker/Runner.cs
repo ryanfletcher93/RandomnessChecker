@@ -15,7 +15,7 @@ namespace RandomnessChecker
 
     public enum DatabaseParameter
     {
-        Host, Port, Database, Username, Password
+        Host, Port, Database, Table, Username, Password
     }
 
     public enum Operation
@@ -48,6 +48,7 @@ namespace RandomnessChecker
          */
         public void run()
         {
+            // TODO: Include other options besides MySQL
             DatabaseType databaseType = DatabaseType.Invalid;
             while (databaseType == DatabaseType.Invalid)
             {
@@ -82,11 +83,21 @@ namespace RandomnessChecker
 
                 if (currOperation == Operation.GatherData)
                 {
-                    runInfo.RequestString = cmdInterface.GetRandomiserUrl();
-                    runInfo.NumberOfRequests = cmdInterface.GetNumberOfRequests();
+                    String requestString = cmdInterface.GetRandomiserUrl();
+                    String regexString = cmdInterface.GetRegexForReturnUrl();
 
-                    GetData();
-                    Console.WriteLine("All results collected\n");
+                    DisplayExampleRequestAndResponse();
+
+                    if (cmdInterface.ConfirmSelection())
+                    {
+                        runInfo.RequestString = requestString;
+                        runInfo.RegexString = regexString;
+
+                        runInfo.NumberOfRequests = cmdInterface.GetNumberOfRequests();
+
+                        GetData();
+                        Console.WriteLine("All results collected\n");
+                    }
                 }
                 else if (currOperation == Operation.ReportOnDataIntegrity)
                 {
@@ -112,6 +123,11 @@ namespace RandomnessChecker
                 Console.WriteLine("Could not connect");
             }
             return canConnect;
+        }
+
+        public void DisplayExampleRequestAndResponse()
+        {
+
         }
 
         private void GetData()
@@ -178,6 +194,20 @@ namespace RandomnessChecker
             }
 
             PrintCountOfData(dataBetweenDates);
+
+            PrintFrequency(dataBetweenDates);
+
+            float aveRequestsPerItem = GetAverageRequestsPerItem(dataBetweenDates);
+            Dictionary<String, float> squaredDiff = 
+                GetSquaredDiffToAverageRequestsPerItem(dataBetweenDates, aveRequestsPerItem);
+
+            if (Debug)
+            {
+                PrintAllSquaredDiffs(squaredDiff);
+            }
+
+            PrintAllSquaredDiffsAboveThreshold(squaredDiff, 100);
+
         }
 
         private void AnalyseAllData()
@@ -207,6 +237,74 @@ namespace RandomnessChecker
                 Console.WriteLine(kvp.Value.Count + ": " + kvp.Key);
             }
             Console.WriteLine();
+        }
+
+        private void PrintFrequency(Dictionary<String, List<DateTime>> data)
+        {
+            SortedDictionary<int, int> frequencyDict = new SortedDictionary<int, int>();
+            foreach (KeyValuePair<String, List<DateTime>> value in data)
+            {
+                int count = value.Value.Count;
+                if (frequencyDict.ContainsKey(count))
+                {
+                    frequencyDict[count]++;
+                }
+                else
+                {
+                    frequencyDict.Add(count, 1);
+                }
+            }
+
+            Console.WriteLine("Frequency distribution");
+            foreach (KeyValuePair<int, int> frequencyRow in frequencyDict)
+            {
+                Console.WriteLine(frequencyRow.Key + ": " + frequencyRow.Value);
+            }
+        }
+
+        private float GetAverageRequestsPerItem(Dictionary<String, List<DateTime>> data)
+        {
+            int numberRecords = database.GetNumberTotalRecords();
+            int numberDistinctItems = database.GetNumberUniqueItems();
+            float ratioOfTotalToDistinct = ((float)numberRecords / (float)numberDistinctItems);
+
+            return ratioOfTotalToDistinct;
+        }
+
+        private Dictionary<String, float> GetSquaredDiffToAverageRequestsPerItem(Dictionary<String, List<DateTime>> data, 
+            float aveRequestsPerItem)
+        {
+            Dictionary<String, float> itemToSquaredDiffMap = new Dictionary<string, float>();
+
+            foreach (KeyValuePair<String, List<DateTime>> dataLine in data)
+            {
+                float diff = Math.Abs(dataLine.Value.Count - aveRequestsPerItem);
+                float diffSquared = diff * diff;
+
+                itemToSquaredDiffMap.Add(dataLine.Key, diffSquared);
+            }
+
+            return itemToSquaredDiffMap;
+        }
+
+        private void PrintAllSquaredDiffs(Dictionary<String, float> squaredDiffsMap)
+        {
+
+        }
+
+        private void PrintAllSquaredDiffsAboveThreshold(Dictionary<String, float> squaredDiffsMap, int threshold)
+        {
+            Dictionary<String, float> thresholdedDiffsMap = new Dictionary<string, float>();
+
+            foreach (KeyValuePair<String, float> squaredDiffsLine in squaredDiffsMap)
+            {
+                if (squaredDiffsLine.Value >= threshold)
+                {
+                    thresholdedDiffsMap.Add(squaredDiffsLine.Key, squaredDiffsLine.Value);
+                }
+            }
+
+            PrintAllSquaredDiffs(thresholdedDiffsMap);
         }
 
         private void PrintNumberDistinctSubreddits(Dictionary<String, List<DateTime>> data)

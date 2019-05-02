@@ -21,7 +21,7 @@ namespace RandomnessChecker
             };
 
         private MySqlConnection connection = null;
-        private static String connectionString; // = "server=localhost;port=3306;user=User;password=ZZIzhRD$0*@u3ZWs;database=redditrandomnesschecker";
+        private static String connectionString;
 
         public SQLDatabase(String connectionString="")
         {
