@@ -15,7 +15,7 @@ namespace RandomnessChecker
 
     public enum DatabaseParameter
     {
-        Host, Port, Database, Table, Username, Password
+        Host, Port, Database, Username, Password
     }
 
     public enum Operation
@@ -31,7 +31,7 @@ namespace RandomnessChecker
         //private ConfigManager configManager;
         private IRunInfo runInfo = new DefaultRunInfo();
         //private IGetRandomUnit getRandomUnit;
-        private IDatabaseConnection database;
+        private ISqlDatabaseConnection database;
         
         private static int maxConcurrentRequests = 5;
 
@@ -68,12 +68,16 @@ namespace RandomnessChecker
             if (databaseType != DatabaseType.NonPersistent)
             {
                 Dictionary<DatabaseParameter, String> databaseParams;
+                String tableName;
                 do
                 {
                     databaseParams = cmdInterface.GetDatabaseParams();
-                    database.SetConnectionString(databaseParams);
+                    tableName = cmdInterface.GetTableName();
                 }
-                while (!CanConnectToDatabase(databaseParams));
+                while (!CanConnectToDatabase(databaseParams, tableName));
+
+                database.SetConnectionString(databaseParams);
+                database.TableName = tableName;
             }
 
             Operation currOperation;
@@ -115,9 +119,9 @@ namespace RandomnessChecker
             }
         }
 
-        private bool CanConnectToDatabase(Dictionary<DatabaseParameter, String> databaseParams)
+        private bool CanConnectToDatabase(Dictionary<DatabaseParameter, String> databaseParams, String tableName)
         {
-            bool canConnect =  database.CanConnect(databaseParams);
+            bool canConnect =  database.CanConnect(databaseParams, tableName);
             if (canConnect == false)
             {
                 Console.WriteLine("Could not connect");

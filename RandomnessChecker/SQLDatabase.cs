@@ -4,12 +4,13 @@ using MySql.Data.MySqlClient;
 
 namespace RandomnessChecker
 {
-    class SQLDatabase : IDatabaseConnection
+    class SQLDatabase : ISqlDatabaseConnection
     {
         private static readonly bool debug = false;
 
         private static Object connectionLock = new Object();
 
+        public String TableName { get; set; }
         public static readonly Dictionary<DatabaseParameter, String> databaseToConnectionString
             = new Dictionary<DatabaseParameter, String>()
             {
@@ -21,7 +22,7 @@ namespace RandomnessChecker
             };
 
         private MySqlConnection connection = null;
-        private static String connectionString;
+        private String connectionString;
 
         public SQLDatabase(String connectionString="")
         {
@@ -31,39 +32,49 @@ namespace RandomnessChecker
         /**
          * @return 
          */
-        public bool CanConnect(Dictionary<DatabaseParameter, String> databaseParams)
+        public bool CanConnect(Dictionary<DatabaseParameter, String> databaseParams, String tableName)
         {
-            if (connectionString == null || connectionString == "")
-            {
-                Console.WriteLine("No connection string provided");
-                return false;
-            }
+            String tempConnectionString = CreateConnectionString(databaseParams);
+            MySqlConnection tempConnection;
+            tempConnection = new MySqlConnection(tempConnectionString);
 
-            bool isConnectionSuccessful = false;
+            bool isConnectionSuccessful = true;
             try
             {
                 // Try opening connection so if fails will not set isConnectionSuccessful to true
-                using (connection = new MySqlConnection(connectionString))
-                {
-                    connection.Open();
-                    isConnectionSuccessful = true;
-                }
+                //tempConnection.Open();
+
+
+                String queryTableString = "SELECT * FROM " + tableName;
+                ExecuteNonQueryWithConnection(queryTableString, tempConnection);
             }
             catch (Exception e)
             {
+                isConnectionSuccessful = false;
                 if (debug)
                 {
-                    Console.WriteLine("Connection failed");
+                    Console.WriteLine("Connection failed: ");
                     Console.WriteLine(e.Message);
+                    Console.WriteLine();
                 }
             }
-
+            
             return isConnectionSuccessful;
         }
 
         public void SetConnectionString(Dictionary<DatabaseParameter, String> databaseParams)
         {
-            connectionString = "";
+            this.connectionString = CreateConnectionString(databaseParams);
+        }
+
+        public void SetConnectionString(String connectionString)
+        {
+            this.connectionString = connectionString;
+        }
+
+        private String CreateConnectionString(Dictionary<DatabaseParameter, String> databaseParams)
+        {
+            String tempConnectionString = "";
 
             var databaseParamValues = Enum.GetValues(typeof(DatabaseParameter));
             foreach (DatabaseParameter databaseParam in databaseParamValues)
@@ -71,22 +82,35 @@ namespace RandomnessChecker
                 String value = databaseParams[databaseParam];
                 if (value != null)
                 {
-                    connectionString += databaseToConnectionString[databaseParam] + "=" + value + ";";
+                    tempConnectionString += databaseToConnectionString[databaseParam] + "=" + value + ";";
+                }
+            }
+
+            return tempConnectionString;
+        }
+
+        public void ConnectToDatabase()
+        {
+            try
+            {
+                connection = new MySqlConnection(connectionString);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to connect to database");
+                if (debug)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
                 }
             }
         }
 
         public void AddToDatabase(DateTime dateTime, String label)
         {
-            lock (connectionLock)
-            {
-                connection.Open();
-                String sqlDateTime = dateTime.ToString("yyyy-MM-dd HH:mm:ss");
-                String query = "INSERT INTO subredditstats (name, time) VALUES ('" + label + "', '" + sqlDateTime + "')";
-                var cmd = new MySqlCommand(query, connection);
-                int reader = cmd.ExecuteNonQuery();
-                connection.Close();
-            }
+            String sqlDateTime = dateTime.ToString("yyyy-MM-dd HH:mm:ss");
+            String query = "INSERT INTO subredditstats (name, time) VALUES ('" + label + "', '" + sqlDateTime + "')";
+            ExecuteNonQuery(query);
         }
 
         public bool IsInDatabase(String label)
@@ -101,32 +125,16 @@ namespace RandomnessChecker
 
         public int GetNumberUniqueItems()
         {
-            int result = 0;
-            lock (connectionLock)
-            {
-                connection.Open();
-                String query = "SELECT COUNT(DISTINCT(name)) FROM subredditstats;";
-                var cmd = new MySqlCommand(query, connection);
-                long resultAsLong = (long) cmd.ExecuteScalar();
-                result = (int) resultAsLong;
-                connection.Close();
-            }
-            return result;
+            String query = "SELECT COUNT(DISTINCT(name)) FROM subredditstats;";
+            int numberUniqueItems = ExecuteScalarQuery(query);
+            return numberUniqueItems;
         }
 
         public int GetNumberTotalRecords()
         {
-            int result = 0;
-            lock (connectionLock)
-            {
-                connection.Open();
-                String query = "SELECT COUNT(name) FROM subredditstats;";
-                var cmd = new MySqlCommand(query, connection);
-                long resultAsLong = (long)cmd.ExecuteScalar();
-                result = (int)resultAsLong;
-                connection.Close();
-            }
-            return result;
+            String query = "SELECT COUNT(name) FROM subredditstats;";
+            int numberTotalRecords = ExecuteScalarQuery(query);
+            return numberTotalRecords;
         }
 
         public Dictionary<String, List<DateTime>> GetDataBetweenDates(DateTime dateTime1, DateTime dateTime2)
@@ -149,6 +157,36 @@ namespace RandomnessChecker
         public Dictionary<String, List<DateTime>> GetAllData()
         {
             return GetDataBetweenDates(DateTime.Now.AddYears(-10), DateTime.Now);
+        }
+
+        private void ExecuteNonQuery(String query)
+        {
+            ExecuteNonQueryWithConnection(query, this.connection);
+        }
+
+        private int ExecuteScalarQuery(String query)
+        {
+            int result = 0;
+            lock (connectionLock)
+            {
+                connection.Open();
+                var cmd = new MySqlCommand(query, connection);
+                long resultAsLong = (long)cmd.ExecuteScalar();
+                result = (int)resultAsLong;
+                connection.Close();
+            }
+            return result;
+        }
+
+        private void ExecuteNonQueryWithConnection(String query, MySqlConnection connection)
+        {
+            lock (connectionLock)
+            {
+                connection.Open();
+                var cmd = new MySqlCommand(query, connection);
+                cmd.ExecuteNonQuery();
+                connection.Close();
+            }
         }
 
         private void AddToDictionary(Dictionary<String, List<DateTime>> res, String key, DateTime value)

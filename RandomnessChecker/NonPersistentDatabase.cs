@@ -11,17 +11,11 @@ namespace RandomnessChecker
         private readonly object syncLock = new object();
 
         private Dictionary<String, List<DateTime>> data;
+        public String TableName { get; set; }
 
         public NonPersistentDatabase()
         {
             data = new Dictionary<string, List<DateTime>>();
-        }
-
-        public void SetConnectionString(Dictionary<DatabaseParameter, String> databaseParams) { }
-
-        public bool CanConnect(Dictionary<DatabaseParameter, String> databaseParameters)
-        {
-            return true;
         }
 
         public void AddToDatabase(DateTime dateTime, String name)

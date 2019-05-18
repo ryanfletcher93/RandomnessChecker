@@ -8,10 +8,6 @@ namespace RandomnessChecker
 {
     public interface IDatabaseConnection
     {
-        void SetConnectionString(Dictionary<DatabaseParameter, String> databaseParams);
-
-        bool CanConnect(Dictionary<DatabaseParameter, String> databaseParams);
-
         void AddToDatabase(DateTime dateTime, String label);
 
         bool IsInDatabase(String label);

@@ -9,6 +9,7 @@ namespace RandomnessChecker
     public interface IRunInfo
     {
         int NumberOfRequests { get; set; }
+        String SqlTableName { get; set; }
         String RequestString { get; set; }
         String RegexString { get; set; }
 

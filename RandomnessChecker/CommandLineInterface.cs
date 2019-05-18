@@ -44,10 +44,6 @@ namespace RandomnessChecker
             String databaseVal = Console.ReadLine();
             paramDict.Add(DatabaseParameter.Database, databaseVal);
 
-            Console.Write("Table: ");
-            String tableVal = Console.ReadLine();
-            paramDict.Add(DatabaseParameter.Table, tableVal);
-
             Console.Write("Username: ");
             String usernameVal = Console.ReadLine();
             paramDict.Add(DatabaseParameter.Username, usernameVal);
@@ -102,6 +98,13 @@ namespace RandomnessChecker
             }
 
             return resultOperation;
+        }
+
+        public String GetTableName()
+        {
+            Console.Write("Table: ");
+            String tableVal = Console.ReadLine();
+            return tableVal;
         }
 
         public String GetRandomiserUrl()

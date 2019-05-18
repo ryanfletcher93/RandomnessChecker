@@ -11,6 +11,7 @@ namespace RandomnessChecker
 
 
         public int NumberOfRequests { get; set; }
+        public String SqlTableName { get; set; }
         public String RequestString { get; set; }
         public String RegexString { get; set; }
 

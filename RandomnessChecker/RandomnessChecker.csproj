@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="CommandLineInterface.cs" />
     <Compile Include="DefaultRunInfo.cs" />
+    <Compile Include="ISqlDatabaseConnection.cs" />
     <Compile Include="IDatabaseConnection.cs" />
     <Compile Include="IRunInfo.cs" />
     <Compile Include="NonPersistentDatabase.cs" />
