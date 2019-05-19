@@ -5,6 +5,16 @@ Curently this has only been used and tested on https://www.reddit.com/r/random, 
 
 Currently using MySQL database that is setup before with a table called 'subredditstats' with a 'name' VARCHAR(50) column and a 'time' DATETIME column already setup.
 
+To read inputs from file, use following formatting
+<Keyword>:<Value>
+Where the keywords are:
+- 'Host'
+- 'Port'
+- 'Database'
+- 'Username'
+- 'Password'
+- 'Table'
+
 TODO List:
 - Change database setup so that the SQL table can have user specified table names and columns
     - OR setup a table in program to avoid issue (and assume tables already come under this name)

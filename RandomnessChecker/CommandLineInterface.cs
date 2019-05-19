@@ -55,6 +55,13 @@ namespace RandomnessChecker
             return paramDict;
         }
 
+        public String GetFilePath()
+        {
+            Console.WriteLine("Enter the Config.txt file path: ");
+            String filePath = Console.ReadLine();
+            return filePath;
+        }
+
         public Operation GetAction()
         {
             Operation resultOperation = Operation.Invalid;

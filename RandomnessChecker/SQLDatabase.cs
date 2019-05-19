@@ -4,7 +4,7 @@ using MySql.Data.MySqlClient;
 
 namespace RandomnessChecker
 {
-    class SQLDatabase : ISqlDatabaseConnection
+    class SQLDatabase : IDatabaseConnection
     {
         private static readonly bool debug = false;
 

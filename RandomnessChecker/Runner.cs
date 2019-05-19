@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net;
 using System.Threading.Tasks;
-using System.Threading;
+using OxyPlot;
+using OxyPlot.Series;
+using OxyPlot.Axes;
+using System.IO;
 
 namespace RandomnessChecker
 {
+    public enum InputType
+    {
+        File, CommandLine
+    }
+
     public enum DatabaseType
     {
         Invalid, NonPersistent, MySql
@@ -31,7 +36,7 @@ namespace RandomnessChecker
         //private ConfigManager configManager;
         private IRunInfo runInfo = new DefaultRunInfo();
         //private IGetRandomUnit getRandomUnit;
-        private ISqlDatabaseConnection database;
+        private IDatabaseConnection database;
         
         private static int maxConcurrentRequests = 5;
 
@@ -67,17 +72,54 @@ namespace RandomnessChecker
             // Check that can connect to database if not non persistent
             if (databaseType != DatabaseType.NonPersistent)
             {
+                String filePath;
                 Dictionary<DatabaseParameter, String> databaseParams;
                 String tableName;
                 do
                 {
-                    databaseParams = cmdInterface.GetDatabaseParams();
-                    tableName = cmdInterface.GetTableName();
+                    databaseParams = new Dictionary<DatabaseParameter, String>();
+                    tableName = "";
+                    //databaseParams = cmdInterface.GetDatabaseParams();
+                    filePath = cmdInterface.GetFilePath();
+
+                    using (StreamReader sr = File.OpenText(filePath))
+                    {
+                        String s = "";
+                        while ((s = sr.ReadLine()) != null)
+                        {
+                            String[] splitString = s.Split(':');
+                            
+                            switch (splitString[0])
+                            {
+                                case "Host":
+                                    databaseParams.Add(DatabaseParameter.Host, splitString[1]);
+                                    break;
+                                case "Port":
+                                    databaseParams.Add(DatabaseParameter.Port, splitString[1]);
+                                    break;
+                                case "Database":
+                                    databaseParams.Add(DatabaseParameter.Database, splitString[1]);
+                                    break;
+                                case "Username":
+                                    databaseParams.Add(DatabaseParameter.Username, splitString[1]);
+                                    break;
+                                case "Password":
+                                    databaseParams.Add(DatabaseParameter.Password, splitString[1]);
+                                    break;
+                                case "Table":
+                                    tableName = splitString[1];
+                                    break;
+                            }
+                        }
+                    }
+                    
                 }
                 while (!CanConnectToDatabase(databaseParams, tableName));
 
                 database.SetConnectionString(databaseParams);
                 database.TableName = tableName;
+
+                database.ConnectToDatabase();
             }
 
             Operation currOperation;
@@ -117,6 +159,11 @@ namespace RandomnessChecker
                     break;
                 }
             }
+        }
+
+        private void GetDatabaseParamsFromFile(String filePath)
+        {
+
         }
 
         private bool CanConnectToDatabase(Dictionary<DatabaseParameter, String> databaseParams, String tableName)
@@ -198,20 +245,11 @@ namespace RandomnessChecker
             }
 
             PrintCountOfData(dataBetweenDates);
-
             PrintFrequency(dataBetweenDates);
 
-            float aveRequestsPerItem = GetAverageRequestsPerItem(dataBetweenDates);
-            Dictionary<String, float> squaredDiff = 
-                GetSquaredDiffToAverageRequestsPerItem(dataBetweenDates, aveRequestsPerItem);
+            PrintActualAndExpectedResultsPerItem(dataBetweenDates);
 
-            if (Debug)
-            {
-                PrintAllSquaredDiffs(squaredDiff);
-            }
-
-            PrintAllSquaredDiffsAboveThreshold(squaredDiff, 100);
-
+            DrawChartOfData(dataBetweenDates);
         }
 
         private void AnalyseAllData()
@@ -266,6 +304,21 @@ namespace RandomnessChecker
             }
         }
 
+        private void PrintActualAndExpectedResultsPerItem(Dictionary<String, List<DateTime>> dataBetweenDates)
+        {
+            float aveRequestsPerItem = GetAverageRequestsPerItem(dataBetweenDates);
+            int numberRecords = 0;
+            foreach (var res in dataBetweenDates)
+            {
+                numberRecords += res.Value.Count;
+            }
+            float expectedAveRequestsPerItemIfRandom = 
+                (numberRecords) / (float)dataBetweenDates.Keys.Count;
+
+            Console.WriteLine("Actual requests per item: " + aveRequestsPerItem);
+            Console.WriteLine("Expected requests per item: " + expectedAveRequestsPerItemIfRandom);
+        }
+
         private float GetAverageRequestsPerItem(Dictionary<String, List<DateTime>> data)
         {
             int numberRecords = database.GetNumberTotalRecords();
@@ -275,44 +328,31 @@ namespace RandomnessChecker
             return ratioOfTotalToDistinct;
         }
 
-        private Dictionary<String, float> GetSquaredDiffToAverageRequestsPerItem(Dictionary<String, List<DateTime>> data, 
-            float aveRequestsPerItem)
-        {
-            Dictionary<String, float> itemToSquaredDiffMap = new Dictionary<string, float>();
-
-            foreach (KeyValuePair<String, List<DateTime>> dataLine in data)
-            {
-                float diff = Math.Abs(dataLine.Value.Count - aveRequestsPerItem);
-                float diffSquared = diff * diff;
-
-                itemToSquaredDiffMap.Add(dataLine.Key, diffSquared);
-            }
-
-            return itemToSquaredDiffMap;
-        }
-
-        private void PrintAllSquaredDiffs(Dictionary<String, float> squaredDiffsMap)
-        {
-
-        }
-
-        private void PrintAllSquaredDiffsAboveThreshold(Dictionary<String, float> squaredDiffsMap, int threshold)
-        {
-            Dictionary<String, float> thresholdedDiffsMap = new Dictionary<string, float>();
-
-            foreach (KeyValuePair<String, float> squaredDiffsLine in squaredDiffsMap)
-            {
-                if (squaredDiffsLine.Value >= threshold)
-                {
-                    thresholdedDiffsMap.Add(squaredDiffsLine.Key, squaredDiffsLine.Value);
-                }
-            }
-
-            PrintAllSquaredDiffs(thresholdedDiffsMap);
-        }
-
         private void PrintNumberDistinctSubreddits(Dictionary<String, List<DateTime>> data)
         {
+
+        }
+
+        private void DrawChartOfData(Dictionary<String, List<DateTime>> dataBetweenPoints)
+        {
+            List<BarItem> barItems = new List<BarItem>();
+            List<String> catItems = new List<String>();
+            foreach (KeyValuePair<String, List<DateTime>> value in dataBetweenPoints)
+            {
+                barItems.Add(new BarItem { Value = value.Value.Count });
+                catItems.Add(value.Key);
+            }
+
+            BarSeries barSeries = new BarSeries();
+            CategoryAxis catAxis = new CategoryAxis();
+
+            barSeries.ItemsSource = barItems;
+            catAxis.ItemsSource = catItems;
+
+            PlotModel model = new PlotModel();
+            model.Series.Add(barSeries);
+            model.Axes.Add(catAxis);
+
 
         }
     }
