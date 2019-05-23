@@ -5,6 +5,8 @@ using OxyPlot;
 using OxyPlot.Series;
 using OxyPlot.Axes;
 using System.IO;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace RandomnessChecker
 {
@@ -81,7 +83,7 @@ namespace RandomnessChecker
                     tableName = "";
                     //databaseParams = cmdInterface.GetDatabaseParams();
                     filePath = cmdInterface.GetFilePath();
-
+                    
                     using (StreamReader sr = File.OpenText(filePath))
                     {
                         String s = "";
@@ -335,25 +337,7 @@ namespace RandomnessChecker
 
         private void DrawChartOfData(Dictionary<String, List<DateTime>> dataBetweenPoints)
         {
-            List<BarItem> barItems = new List<BarItem>();
-            List<String> catItems = new List<String>();
-            foreach (KeyValuePair<String, List<DateTime>> value in dataBetweenPoints)
-            {
-                barItems.Add(new BarItem { Value = value.Value.Count });
-                catItems.Add(value.Key);
-            }
-
-            BarSeries barSeries = new BarSeries();
-            CategoryAxis catAxis = new CategoryAxis();
-
-            barSeries.ItemsSource = barItems;
-            catAxis.ItemsSource = catItems;
-
-            PlotModel model = new PlotModel();
-            model.Series.Add(barSeries);
-            model.Axes.Add(catAxis);
-
-
+            Application.Run(new Form1(dataBetweenPoints));
         }
     }
 }

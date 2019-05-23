@@ -13,3 +13,5 @@ C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\R
 C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\OxyPlot.Wpf.dll
 C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\OxyPlot.Wpf.pdb
 C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\OxyPlot.Wpf.xml
+C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\obj\Debug\RandomnessChecker.Form1.resources
+C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\obj\Debug\RandomnessChecker.csproj.GenerateResource.Cache
