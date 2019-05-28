@@ -41,6 +41,7 @@ namespace RandomnessChecker
             this.chart1.Height = 1000;
         }
 
+        // Zoom in on chart using mousewheel
         private void chart1_MouseWheel(object sender, MouseEventArgs e)
         {
             var chart = (Chart)sender;

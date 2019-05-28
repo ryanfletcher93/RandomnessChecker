@@ -27,6 +27,7 @@ namespace RandomnessChecker
             return DatabaseType.MySql;
         }
 
+        // TODO: Delete, not needed anymore now using config file
         public Dictionary<DatabaseParameter, String> GetDatabaseParams()
         {
             Dictionary<DatabaseParameter, String> paramDict = new Dictionary<DatabaseParameter, string>();
@@ -62,6 +63,7 @@ namespace RandomnessChecker
             return filePath;
         }
 
+        // Get user to choose form list of actions
         public Operation GetAction()
         {
             Operation resultOperation = Operation.Invalid;

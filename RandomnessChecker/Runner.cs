@@ -52,6 +52,8 @@ namespace RandomnessChecker
 
         /**
          * Start execution of program
+         * 
+         * TODO: Move some of this to functions or another class
          */
         public void run()
         {
@@ -124,9 +126,11 @@ namespace RandomnessChecker
                 database.ConnectToDatabase();
             }
 
+            // Run operation specified by user
             Operation currOperation;
             while (true)
             {
+                // Get action
                 currOperation = cmdInterface.GetAction();
 
                 if (currOperation == Operation.GatherData)
