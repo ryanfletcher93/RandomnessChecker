@@ -10,21 +10,19 @@ using System.Windows.Forms;
 
 namespace RandomnessChecker
 {
-    public enum InputType
-    {
-        File, CommandLine
-    }
-
+    // Choose database type, intended to extend to more than just MySql
     public enum DatabaseType
     {
         Invalid, NonPersistent, MySql
     }
 
+    // List of all parameters for database connection
     public enum DatabaseParameter
     {
         Host, Port, Database, Username, Password
     }
 
+    // Option for user to select
     public enum Operation
     {
         Invalid, Quit, GatherData, ReportOnDataIntegrity, GenerateReport
@@ -35,9 +33,7 @@ namespace RandomnessChecker
         private static bool Debug = false;
 
         private CommandLineInterface cmdInterface = new CommandLineInterface();
-        //private ConfigManager configManager;
         private IRunInfo runInfo = new DefaultRunInfo();
-        //private IGetRandomUnit getRandomUnit;
         private IDatabaseConnection database;
         
         private static int maxConcurrentRequests = 5;
@@ -53,7 +49,7 @@ namespace RandomnessChecker
         /**
          * Start execution of program
          * 
-         * TODO: Move some of this to functions or another class
+         * TODO: Move a lot of this to functions or another class, way too long at the moment
          */
         public void run()
         {
@@ -83,7 +79,6 @@ namespace RandomnessChecker
                 {
                     databaseParams = new Dictionary<DatabaseParameter, String>();
                     tableName = "";
-                    //databaseParams = cmdInterface.GetDatabaseParams();
                     filePath = cmdInterface.GetFilePath();
                     
                     using (StreamReader sr = File.OpenText(filePath))
@@ -138,8 +133,6 @@ namespace RandomnessChecker
                     String requestString = cmdInterface.GetRandomiserUrl();
                     String regexString = cmdInterface.GetRegexForReturnUrl();
 
-                    DisplayExampleRequestAndResponse();
-
                     if (cmdInterface.ConfirmSelection())
                     {
                         runInfo.RequestString = requestString;
@@ -167,11 +160,6 @@ namespace RandomnessChecker
             }
         }
 
-        private void GetDatabaseParamsFromFile(String filePath)
-        {
-
-        }
-
         private bool CanConnectToDatabase(Dictionary<DatabaseParameter, String> databaseParams, String tableName)
         {
             bool canConnect =  database.CanConnect(databaseParams, tableName);
@@ -180,11 +168,6 @@ namespace RandomnessChecker
                 Console.WriteLine("Could not connect");
             }
             return canConnect;
-        }
-
-        public void DisplayExampleRequestAndResponse()
-        {
-
         }
 
         private void GetData()
@@ -207,11 +190,9 @@ namespace RandomnessChecker
                 {
                     Console.WriteLine("i: " + i);
                 }
-
             }
 
             Task.WaitAll(taskList.ToArray());
-            
         }
 
         private void GetRandomUnit()
@@ -224,6 +205,9 @@ namespace RandomnessChecker
             }
         }
 
+        /**
+         * Report statistics on how many data samples vs size
+         */
         private void ReportOnRandomness()
         {
             int numberDistinctItems = database.GetNumberUniqueItems();
@@ -332,11 +316,6 @@ namespace RandomnessChecker
             float ratioOfTotalToDistinct = ((float)numberRecords / (float)numberDistinctItems);
 
             return ratioOfTotalToDistinct;
-        }
-
-        private void PrintNumberDistinctSubreddits(Dictionary<String, List<DateTime>> data)
-        {
-
         }
 
         private void DrawChartOfData(Dictionary<String, List<DateTime>> dataBetweenPoints)

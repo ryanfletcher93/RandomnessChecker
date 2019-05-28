@@ -41,10 +41,6 @@ namespace RandomnessChecker
             bool isConnectionSuccessful = true;
             try
             {
-                // Try opening connection so if fails will not set isConnectionSuccessful to true
-                //tempConnection.Open();
-
-
                 String queryTableString = "SELECT * FROM " + tableName;
                 ExecuteNonQueryWithConnection(queryTableString, tempConnection);
             }

@@ -26,6 +26,9 @@ namespace RandomnessChecker
             }
         }
 
+        /**
+         * 
+         */
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -33,15 +36,20 @@ namespace RandomnessChecker
             this.WindowState = FormWindowState.Maximized;
             this.AutoScroll = true;
 
+            // Set mousewheel event
             this.chart1.MouseWheel += chart1_MouseWheel;
             this.chart1.ChartAreas[0].AxisX.ScaleView.Zoomable = true;
             this.chart1.ChartAreas[0].AxisY.ScaleView.Zoomable = true;
+
+            // Set the text that appears when hovering over data
             this.chart1.Series["Series1"].ToolTip = "#VALX, #VAL";
             this.chart1.Width = 7000;
             this.chart1.Height = 1000;
         }
 
-        // Zoom in on chart using mousewheel
+        /**
+         * Zoom in on chart using mousewheel, but one down mouse wheel resets
+         */
         private void chart1_MouseWheel(object sender, MouseEventArgs e)
         {
             var chart = (Chart)sender;
