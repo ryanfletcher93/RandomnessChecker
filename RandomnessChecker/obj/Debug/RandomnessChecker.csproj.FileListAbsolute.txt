@@ -7,3 +7,11 @@ c:\users\ryan fletcher\documents\visual studio 2017\Projects\RandomnessChecker\R
 C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\MySql.Data.dll
 C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\Google.Protobuf.dll
 C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\MySql.Data.xml
+C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\OxyPlot.dll
+C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\OxyPlot.pdb
+C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\OxyPlot.xml
+C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\OxyPlot.Wpf.dll
+C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\OxyPlot.Wpf.pdb
+C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\bin\Debug\OxyPlot.Wpf.xml
+C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\obj\Debug\RandomnessChecker.Form1.resources
+C:\Users\Ryan Fletcher\documents\visual studio 2017\Projects\RandomnessChecker\RandomnessChecker\obj\Debug\RandomnessChecker.csproj.GenerateResource.Cache

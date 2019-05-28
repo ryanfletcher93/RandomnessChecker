@@ -1,23 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net;
 using System.Threading.Tasks;
+using OxyPlot;
+using OxyPlot.Series;
+using OxyPlot.Axes;
+using System.IO;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace RandomnessChecker
 {
+    // Choose database type, intended to extend to more than just MySql
     public enum DatabaseType
     {
         Invalid, NonPersistent, MySql
     }
 
+    // List of all parameters for database connection
     public enum DatabaseParameter
     {
         Host, Port, Database, Username, Password
     }
 
+    // Option for user to select
     public enum Operation
     {
         Invalid, Quit, GatherData, ReportOnDataIntegrity, GenerateReport
@@ -28,9 +33,7 @@ namespace RandomnessChecker
         private static bool Debug = false;
 
         private CommandLineInterface cmdInterface = new CommandLineInterface();
-        //private ConfigManager configManager;
         private IRunInfo runInfo = new DefaultRunInfo();
-        //private IGetRandomUnit getRandomUnit;
         private IDatabaseConnection database;
         
         private static int maxConcurrentRequests = 5;
@@ -45,9 +48,12 @@ namespace RandomnessChecker
 
         /**
          * Start execution of program
+         * 
+         * TODO: Move a lot of this to functions or another class, way too long at the moment
          */
         public void run()
         {
+            // TODO: Include other options besides MySQL
             DatabaseType databaseType = DatabaseType.Invalid;
             while (databaseType == DatabaseType.Invalid)
             {
@@ -66,27 +72,77 @@ namespace RandomnessChecker
             // Check that can connect to database if not non persistent
             if (databaseType != DatabaseType.NonPersistent)
             {
+                String filePath;
                 Dictionary<DatabaseParameter, String> databaseParams;
+                String tableName;
                 do
                 {
-                    databaseParams = cmdInterface.GetDatabaseParams();
-                    database.SetConnectionString(databaseParams);
+                    databaseParams = new Dictionary<DatabaseParameter, String>();
+                    tableName = "";
+                    filePath = cmdInterface.GetFilePath();
+                    
+                    using (StreamReader sr = File.OpenText(filePath))
+                    {
+                        String s = "";
+                        while ((s = sr.ReadLine()) != null)
+                        {
+                            String[] splitString = s.Split(':');
+                            
+                            switch (splitString[0])
+                            {
+                                case "Host":
+                                    databaseParams.Add(DatabaseParameter.Host, splitString[1]);
+                                    break;
+                                case "Port":
+                                    databaseParams.Add(DatabaseParameter.Port, splitString[1]);
+                                    break;
+                                case "Database":
+                                    databaseParams.Add(DatabaseParameter.Database, splitString[1]);
+                                    break;
+                                case "Username":
+                                    databaseParams.Add(DatabaseParameter.Username, splitString[1]);
+                                    break;
+                                case "Password":
+                                    databaseParams.Add(DatabaseParameter.Password, splitString[1]);
+                                    break;
+                                case "Table":
+                                    tableName = splitString[1];
+                                    break;
+                            }
+                        }
+                    }
+                    
                 }
-                while (!CanConnectToDatabase(databaseParams));
+                while (!CanConnectToDatabase(databaseParams, tableName));
+
+                database.SetConnectionString(databaseParams);
+                database.TableName = tableName;
+
+                database.ConnectToDatabase();
             }
 
+            // Run operation specified by user
             Operation currOperation;
             while (true)
             {
+                // Get action
                 currOperation = cmdInterface.GetAction();
 
                 if (currOperation == Operation.GatherData)
                 {
-                    runInfo.RequestString = cmdInterface.GetRandomiserUrl();
-                    runInfo.NumberOfRequests = cmdInterface.GetNumberOfRequests();
+                    String requestString = cmdInterface.GetRandomiserUrl();
+                    String regexString = cmdInterface.GetRegexForReturnUrl();
 
-                    GetData();
-                    Console.WriteLine("All results collected\n");
+                    if (cmdInterface.ConfirmSelection())
+                    {
+                        runInfo.RequestString = requestString;
+                        runInfo.RegexString = regexString;
+
+                        runInfo.NumberOfRequests = cmdInterface.GetNumberOfRequests();
+
+                        GetData();
+                        Console.WriteLine("All results collected\n");
+                    }
                 }
                 else if (currOperation == Operation.ReportOnDataIntegrity)
                 {
@@ -104,9 +160,9 @@ namespace RandomnessChecker
             }
         }
 
-        private bool CanConnectToDatabase(Dictionary<DatabaseParameter, String> databaseParams)
+        private bool CanConnectToDatabase(Dictionary<DatabaseParameter, String> databaseParams, String tableName)
         {
-            bool canConnect =  database.CanConnect(databaseParams);
+            bool canConnect =  database.CanConnect(databaseParams, tableName);
             if (canConnect == false)
             {
                 Console.WriteLine("Could not connect");
@@ -134,11 +190,9 @@ namespace RandomnessChecker
                 {
                     Console.WriteLine("i: " + i);
                 }
-
             }
 
             Task.WaitAll(taskList.ToArray());
-            
         }
 
         private void GetRandomUnit()
@@ -151,6 +205,9 @@ namespace RandomnessChecker
             }
         }
 
+        /**
+         * Report statistics on how many data samples vs size
+         */
         private void ReportOnRandomness()
         {
             int numberDistinctItems = database.GetNumberUniqueItems();
@@ -178,6 +235,11 @@ namespace RandomnessChecker
             }
 
             PrintCountOfData(dataBetweenDates);
+            PrintFrequency(dataBetweenDates);
+
+            PrintActualAndExpectedResultsPerItem(dataBetweenDates);
+
+            DrawChartOfData(dataBetweenDates);
         }
 
         private void AnalyseAllData()
@@ -209,9 +271,56 @@ namespace RandomnessChecker
             Console.WriteLine();
         }
 
-        private void PrintNumberDistinctSubreddits(Dictionary<String, List<DateTime>> data)
+        private void PrintFrequency(Dictionary<String, List<DateTime>> data)
         {
+            SortedDictionary<int, int> frequencyDict = new SortedDictionary<int, int>();
+            foreach (KeyValuePair<String, List<DateTime>> value in data)
+            {
+                int count = value.Value.Count;
+                if (frequencyDict.ContainsKey(count))
+                {
+                    frequencyDict[count]++;
+                }
+                else
+                {
+                    frequencyDict.Add(count, 1);
+                }
+            }
 
+            Console.WriteLine("Frequency distribution");
+            foreach (KeyValuePair<int, int> frequencyRow in frequencyDict)
+            {
+                Console.WriteLine(frequencyRow.Key + ": " + frequencyRow.Value);
+            }
+        }
+
+        private void PrintActualAndExpectedResultsPerItem(Dictionary<String, List<DateTime>> dataBetweenDates)
+        {
+            float aveRequestsPerItem = GetAverageRequestsPerItem(dataBetweenDates);
+            int numberRecords = 0;
+            foreach (var res in dataBetweenDates)
+            {
+                numberRecords += res.Value.Count;
+            }
+            float expectedAveRequestsPerItemIfRandom = 
+                (numberRecords) / (float)dataBetweenDates.Keys.Count;
+
+            Console.WriteLine("Actual requests per item: " + aveRequestsPerItem);
+            Console.WriteLine("Expected requests per item: " + expectedAveRequestsPerItemIfRandom);
+        }
+
+        private float GetAverageRequestsPerItem(Dictionary<String, List<DateTime>> data)
+        {
+            int numberRecords = database.GetNumberTotalRecords();
+            int numberDistinctItems = database.GetNumberUniqueItems();
+            float ratioOfTotalToDistinct = ((float)numberRecords / (float)numberDistinctItems);
+
+            return ratioOfTotalToDistinct;
+        }
+
+        private void DrawChartOfData(Dictionary<String, List<DateTime>> dataBetweenPoints)
+        {
+            Application.Run(new Form1(dataBetweenPoints));
         }
     }
 }

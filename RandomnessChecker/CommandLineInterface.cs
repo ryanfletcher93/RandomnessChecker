@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace RandomnessChecker
 {
@@ -18,7 +19,7 @@ namespace RandomnessChecker
 
         public CommandLineInterface()
         {
-             
+
         }
 
         public DatabaseType GetDatabaseType()
@@ -26,6 +27,7 @@ namespace RandomnessChecker
             return DatabaseType.MySql;
         }
 
+        // TODO: Delete, not needed anymore now using config file
         public Dictionary<DatabaseParameter, String> GetDatabaseParams()
         {
             Dictionary<DatabaseParameter, String> paramDict = new Dictionary<DatabaseParameter, string>();
@@ -54,6 +56,14 @@ namespace RandomnessChecker
             return paramDict;
         }
 
+        public String GetFilePath()
+        {
+            Console.WriteLine("Enter the Config.txt file path: ");
+            String filePath = Console.ReadLine();
+            return filePath;
+        }
+
+        // Get user to choose form list of actions
         public Operation GetAction()
         {
             Operation resultOperation = Operation.Invalid;
@@ -99,11 +109,54 @@ namespace RandomnessChecker
             return resultOperation;
         }
 
+        public String GetTableName()
+        {
+            Console.Write("Table: ");
+            String tableVal = Console.ReadLine();
+            return tableVal;
+        }
+
         public String GetRandomiserUrl()
         {
             Console.Write("Enter the randomizer url: ");
             String url = Console.ReadLine();
             return url;
+        }
+
+        public String GetRegexForReturnUrl()
+        {
+            Console.Write("Enter the regex to be applied to return url: ");
+            String regex = Console.ReadLine();
+            return regex;
+        }
+
+        public bool ConfirmSelection()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Are these the parameters you want to continue with? (Y/n)");
+
+            String res;
+            bool result = false;
+            while (true)
+            {
+                res = Console.ReadLine();
+                if (res == "Y")
+                {
+                    result = true;
+                    break;
+                }
+                else if (res == "n")
+                {
+                    result = false;
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid entry, please try again:");
+                }
+            }
+
+            return result;
         }
 
         public int GetNumberOfRequests()

@@ -1,0 +1,6 @@
+Host:localhost
+Port:3306
+Database:redditrandomnesschecker
+Username:User
+Password:ZZIzhRD$0*@u3ZWs
+Table:subredditstats

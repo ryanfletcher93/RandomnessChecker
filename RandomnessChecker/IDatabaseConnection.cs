@@ -8,12 +8,17 @@ namespace RandomnessChecker
 {
     public interface IDatabaseConnection
     {
-        void SetConnectionString(Dictionary<DatabaseParameter, String> databaseParams);
+        // Table name is set separately to connection string
+        String TableName { set; get; }
 
-        bool CanConnect(Dictionary<DatabaseParameter, String> databaseParams);
+        void SetConnectionString(Dictionary<DatabaseParameter, String> databaseParams);
+        void SetConnectionString(String connectionString);
+
+        // Set 
+        void ConnectToDatabase();
+        bool CanConnect(Dictionary<DatabaseParameter, String> databaseParams, String tableName);
 
         void AddToDatabase(DateTime dateTime, String label);
-
         bool IsInDatabase(String label);
 
         void PrintDatabase();
@@ -25,7 +30,6 @@ namespace RandomnessChecker
         int GetNumberTotalRecords();
 
         Dictionary<String, List<DateTime>> GetDataBetweenDates(DateTime dateTime1, DateTime dateTime2);
-
         Dictionary<String, List<DateTime>> GetAllData();
     }
 }
